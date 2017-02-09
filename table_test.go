@@ -14,8 +14,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/mattn/go-runewidth"
 )
 
 func ExampleShort() {
@@ -27,7 +25,7 @@ func ExampleShort() {
 		[]string{"D", "The Gopher", "800"},
 	}
 
-	table := NewWriter(os.Stdout)
+	table := NewColorWriter(os.Stdout)
 	table.SetHeader([]string{"Name", "Sign", "Rating"})
 
 	for _, v := range data {
@@ -44,7 +42,7 @@ func ExampleLong() {
 		[]string{"Instead of lining up the letters all ", "the way across, he splits the keyboard in two", "Like most ergonomic keyboards", "See Data"},
 	}
 
-	table := NewWriter(os.Stdout)
+	table := NewColorWriter(os.Stdout)
 	table.SetHeader([]string{"Name", "Sign", "Rating"})
 	table.SetCenterSeparator("*")
 	table.SetRowSeparator("=")
@@ -82,13 +80,8 @@ func TestCSVSeparator(t *testing.T) {
 		return
 	}
 	table.SetRowLine(true)
-	if runewidth.IsEastAsian() {
-		table.SetCenterSeparator("＊")
-		table.SetColumnSeparator("‡")
-	} else {
-		table.SetCenterSeparator("*")
-		table.SetColumnSeparator("‡")
-	}
+	table.SetCenterSeparator("*")
+	table.SetColumnSeparator("‡")
 	table.SetRowSeparator("-")
 	table.SetAlignment(ALIGN_LEFT)
 	table.Render()
@@ -98,17 +91,14 @@ func TestNoBorder(t *testing.T) {
 	data := [][]string{
 		[]string{"1/1/2014", "Domain name", "2233", "$10.98"},
 		[]string{"1/1/2014", "January Hosting", "2233", "$54.95"},
-		[]string{"", "    (empty)\n    (empty)", "", ""},
 		[]string{"1/4/2014", "February Hosting", "2233", "$51.00"},
 		[]string{"1/4/2014", "February Extra Bandwidth", "2233", "$30.00"},
-		[]string{"1/4/2014", "    (Discount)", "2233", "-$1.00"},
 	}
 
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
-	table.SetAutoWrapText(false)
+	table := NewColorWriter(&buf)
 	table.SetHeader([]string{"Date", "Description", "CV2", "Amount"})
-	table.SetFooter([]string{"", "", "Total", "$145.93"}) // Add Footer
+	table.SetFooter([]string{"", "", "Total", "$146.93"}) // Add Footer
 	table.SetBorder(false)                                // Set Border to false
 	table.AppendBulk(data)                                // Add Bulk Data
 	table.Render()
@@ -117,13 +107,10 @@ func TestNoBorder(t *testing.T) {
 +----------+--------------------------+-------+---------+
   1/1/2014 | Domain name              |  2233 | $10.98   
   1/1/2014 | January Hosting          |  2233 | $54.95   
-           |     (empty)              |       |          
-           |     (empty)              |       |          
   1/4/2014 | February Hosting         |  2233 | $51.00   
   1/4/2014 | February Extra Bandwidth |  2233 | $30.00   
-  1/4/2014 |     (Discount)           |  2233 | -$1.00   
 +----------+--------------------------+-------+---------+
-                                        TOTAL | $145 93  
+                                        TOTAL | $146 93  
                                       +-------+---------+
 `
 	got := buf.String()
@@ -136,17 +123,14 @@ func TestWithBorder(t *testing.T) {
 	data := [][]string{
 		[]string{"1/1/2014", "Domain name", "2233", "$10.98"},
 		[]string{"1/1/2014", "January Hosting", "2233", "$54.95"},
-		[]string{"", "    (empty)\n    (empty)", "", ""},
 		[]string{"1/4/2014", "February Hosting", "2233", "$51.00"},
 		[]string{"1/4/2014", "February Extra Bandwidth", "2233", "$30.00"},
-		[]string{"1/4/2014", "    (Discount)", "2233", "-$1.00"},
 	}
 
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
-	table.SetAutoWrapText(false)
+	table := NewColorWriter(&buf)
 	table.SetHeader([]string{"Date", "Description", "CV2", "Amount"})
-	table.SetFooter([]string{"", "", "Total", "$145.93"}) // Add Footer
+	table.SetFooter([]string{"", "", "Total", "$146.93"}) // Add Footer
 	table.AppendBulk(data)                                // Add Bulk Data
 	table.Render()
 
@@ -155,13 +139,10 @@ func TestWithBorder(t *testing.T) {
 +----------+--------------------------+-------+---------+
 | 1/1/2014 | Domain name              |  2233 | $10.98  |
 | 1/1/2014 | January Hosting          |  2233 | $54.95  |
-|          |     (empty)              |       |         |
-|          |     (empty)              |       |         |
 | 1/4/2014 | February Hosting         |  2233 | $51.00  |
 | 1/4/2014 | February Extra Bandwidth |  2233 | $30.00  |
-| 1/4/2014 |     (Discount)           |  2233 | -$1.00  |
 +----------+--------------------------+-------+---------+
-|                                       TOTAL | $145 93 |
+|                                       TOTAL | $146 93 |
 +----------+--------------------------+-------+---------+
 `
 	got := buf.String()
@@ -180,7 +161,7 @@ func TestPrintingInMarkdown(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
+	table := NewColorWriter(&buf)
 	table.SetHeader([]string{"Date", "Description", "CV2", "Amount"})
 	table.AppendBulk(data) // Add Bulk Data
 	table.SetBorders(Border{Left: true, Top: false, Right: true, Bottom: false})
@@ -202,7 +183,7 @@ func TestPrintingInMarkdown(t *testing.T) {
 
 func TestPrintHeading(t *testing.T) {
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
+	table := NewColorWriter(&buf)
 	table.SetHeader([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c"})
 	table.printHeading()
 	want := `| 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C |
@@ -216,7 +197,7 @@ func TestPrintHeading(t *testing.T) {
 
 func TestPrintHeadingWithoutAutoFormat(t *testing.T) {
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
+	table := NewColorWriter(&buf)
 	table.SetHeader([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c"})
 	table.SetAutoFormatHeaders(false)
 	table.printHeading()
@@ -231,7 +212,7 @@ func TestPrintHeadingWithoutAutoFormat(t *testing.T) {
 
 func TestPrintFooter(t *testing.T) {
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
+	table := NewColorWriter(&buf)
 	table.SetHeader([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c"})
 	table.SetFooter([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c"})
 	table.printFooter()
@@ -246,7 +227,7 @@ func TestPrintFooter(t *testing.T) {
 
 func TestPrintFooterWithoutAutoFormat(t *testing.T) {
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
+	table := NewColorWriter(&buf)
 	table.SetAutoFormatHeaders(false)
 	table.SetHeader([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c"})
 	table.SetFooter([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c"})
@@ -265,7 +246,7 @@ func TestPrintTableWithAndWithoutAutoWrap(t *testing.T) {
 	var multiline = `A multiline
 string with some lines being really long.`
 
-	with := NewWriter(&buf)
+	with := NewColorWriter(&buf)
 	with.Append([]string{multiline})
 	with.Render()
 	want := `+--------------------------------+
@@ -279,7 +260,7 @@ string with some lines being really long.`
 	}
 
 	buf.Truncate(0)
-	without := NewWriter(&buf)
+	without := NewColorWriter(&buf)
 	without.SetAutoWrapText(false)
 	without.Append([]string{multiline})
 	without.Render()
@@ -305,7 +286,7 @@ func TestPrintLine(t *testing.T) {
 	}
 	want = want + "+"
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
+	table := NewColorWriter(&buf)
 	table.SetHeader(header)
 	table.printLine(false)
 	got := buf.String()
@@ -325,7 +306,7 @@ func TestAnsiStrip(t *testing.T) {
 	}
 	want = want + "+"
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
+	table := NewColorWriter(&buf)
 	table.SetHeader(header)
 	table.printLine(false)
 	got := buf.String()
@@ -335,7 +316,7 @@ func TestAnsiStrip(t *testing.T) {
 }
 
 func NewCustomizedTable(out io.Writer) *Table {
-	table := NewWriter(out)
+	table := NewColorWriter(out)
 	table.SetCenterSeparator("")
 	table.SetColumnSeparator("")
 	table.SetRowSeparator("")
@@ -380,7 +361,7 @@ func TestAutoMergeRows(t *testing.T) {
 		[]string{"B", "The Very very Bad Man", "200"},
 	}
 	var buf bytes.Buffer
-	table := NewWriter(&buf)
+	table := NewColorWriter(&buf)
 	table.SetHeader([]string{"Name", "Sign", "Rating"})
 
 	for _, v := range data {
@@ -403,7 +384,7 @@ func TestAutoMergeRows(t *testing.T) {
 	}
 
 	buf.Reset()
-	table = NewWriter(&buf)
+	table = NewColorWriter(&buf)
 	table.SetHeader([]string{"Name", "Sign", "Rating"})
 
 	for _, v := range data {
@@ -430,7 +411,7 @@ func TestAutoMergeRows(t *testing.T) {
 	}
 
 	buf.Reset()
-	table = NewWriter(&buf)
+	table = NewColorWriter(&buf)
 	table.SetHeader([]string{"Name", "Sign", "Rating"})
 
 	dataWithlongText := [][]string{
