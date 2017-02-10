@@ -4,7 +4,6 @@ package tablewriter
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"strings"
 	"syscall"
@@ -332,7 +331,7 @@ func parseEscapeSequence(command byte, param []byte) parseResult {
 }
 
 func (t *Table) flushBuffer() (int, error) {
-	return t.flushTo(t.w)
+	return t.flushTo(t.out)
 }
 
 func (t *Table) resetBuffer() (int, error) {
